@@ -177,6 +177,26 @@ inline void TestSceneSignatureManagement()
   assert(!systemC->mEntities.count(entityC));
   assert(!systemC->mEntities.count(entityD));
   assert(!systemC->mEntities.count(entityE));
+
+  scene.DestroyEntity(entityC);
+
+  assert(!systemA->mEntities.count(entityA));
+  assert(!systemA->mEntities.count(entityB));
+  assert(!systemA->mEntities.count(entityC));
+  assert(!systemA->mEntities.count(entityD));
+  assert(!systemA->mEntities.count(entityE));
+
+  assert(!systemB->mEntities.count(entityA));
+  assert(!systemB->mEntities.count(entityB));
+  assert(!systemB->mEntities.count(entityC));
+  assert(!systemB->mEntities.count(entityD));
+  assert(!systemB->mEntities.count(entityE));
+
+  assert(!systemC->mEntities.count(entityA));
+  assert(!systemC->mEntities.count(entityB));
+  assert(!systemC->mEntities.count(entityC));
+  assert(!systemC->mEntities.count(entityD));
+  assert(!systemC->mEntities.count(entityE));
 }
 
 /******************************************************************************/
@@ -229,6 +249,14 @@ inline void TestSceneEntityManagement()
   assert(scene.GetComponentForEntity<ComponentB>(entityC).value == "seven");
   assert(scene.GetComponentForEntity<ComponentA>(entityE).value == 9);
   assert(scene.GetComponentForEntity<ComponentB>(entityE).value == "nine");
+
+  entityB = scene.CreateEntity();
+
+  scene.AddComponentToEntity<ComponentA>(entityB).value = 10;
+  scene.AddComponentToEntity<ComponentB>(entityB).value = "ten";
+
+  assert(scene.GetComponentForEntity<ComponentA>(entityB).value == 10);
+  assert(scene.GetComponentForEntity<ComponentB>(entityB).value == "ten");
 }
 
 } // namespace KumaECS
