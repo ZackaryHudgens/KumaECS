@@ -68,6 +68,7 @@ class ComponentMap : public IComponentMap
 
       mEntityToIndexMap[aEntity] = mSize;
       mIndexToEntityMap[mSize] = aEntity;
+      mComponents[mEntityToIndexMap[aEntity]] = T();
       ++mSize;
 
       return mComponents[mEntityToIndexMap[aEntity]];
