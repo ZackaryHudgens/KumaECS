@@ -5,13 +5,11 @@
 
 namespace KumaECS {
 
-struct ComponentA
-{
-  int value { 0 };
+struct ComponentA {
+  int value{0};
 };
 
-struct ComponentB
-{
+struct ComponentB {
   std::string value;
 };
 
@@ -20,8 +18,7 @@ class SystemB : public System {};
 class SystemC : public System {};
 
 /******************************************************************************/
-inline void TestComponentMap()
-{
+inline void TestComponentMap() {
   ComponentMap<ComponentA> map(100);
 
   map.AddComponent(0);
@@ -64,8 +61,7 @@ inline void TestComponentMap()
 }
 
 /******************************************************************************/
-inline void TestSceneSignatureManagement()
-{
+inline void TestSceneSignatureManagement() {
   Scene scene;
   scene.RegisterComponentType<ComponentA>(100);
   scene.RegisterComponentType<ComponentB>(100);
@@ -200,8 +196,7 @@ inline void TestSceneSignatureManagement()
 }
 
 /******************************************************************************/
-inline void TestSceneEntityManagement()
-{
+inline void TestSceneEntityManagement() {
   Scene scene;
   scene.RegisterComponentType<ComponentA>(100);
   scene.RegisterComponentType<ComponentB>(100);

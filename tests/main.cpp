@@ -2,8 +2,7 @@
 
 #include <iostream>
 
-int main()
-{
+int main() {
   std::cout << "Testing ComponentMap..." << std::endl;
   KumaECS::TestComponentMap();
   std::cout << "ComponentMap tests successful!" << std::endl;
