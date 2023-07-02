@@ -1,4 +1,4 @@
-#include "ECS.hpp"
+#include "KumaECS/ECS.hpp"
 
 #include <cassert>
 #include <string>
