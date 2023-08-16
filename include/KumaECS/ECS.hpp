@@ -40,11 +40,9 @@ using EntitySet = std::set<Entity>;
 // interested in.
 using Signature = std::bitset<MAX_COMPONENT_TYPES>;
 
-/*******************************************************************************
- * A System contains a set of Entities that share a Signature. This set is
- * managed by a Scene as Entities are created and deleted, and as components are
- * added and removed.
- ******************************************************************************/
+// A System contains a set of Entities that share a Signature. This set is
+// managed by a Scene as Entities are created and deleted, and as components are
+// added and removed.
 class System {
 public:
   virtual ~System() = default;
@@ -52,9 +50,7 @@ public:
   EntitySet mEntities;
 };
 
-/*******************************************************************************
- * The interface for a ComponentMap.
- ******************************************************************************/
+// The interface for a ComponentMap.
 class IComponentMap {
 public:
   virtual ~IComponentMap() = default;
@@ -63,10 +59,8 @@ public:
   virtual void RemoveComponent(Entity aEntity) = 0;
 };
 
-/*******************************************************************************
- * A ComponentMap maintains a packed vector of component data and maps Entity
- * IDs to indices in that vector.
- ******************************************************************************/
+// A ComponentMap maintains a packed vector of component data and maps Entity
+// IDs to indices in that vector.
 template <typename T> class ComponentMap : public IComponentMap {
 public:
   ComponentMap<T>(size_t aMaxComponents) : mSize(0) {
@@ -122,11 +116,9 @@ private:
   size_t mSize;
 };
 
-/*******************************************************************************
- * A Scene contains all the data necessary for a single screen/area of a game.
- * This includes a list of Entity IDs, a list of Systems, and a ComponentMap for
- * each type of component.
- ******************************************************************************/
+// A Scene contains all the data necessary for a single screen/area of a game.
+// This includes a list of Entity IDs, a list of Systems, and a ComponentMap for
+// each type of component.
 class Scene {
 public:
   Scene() {
