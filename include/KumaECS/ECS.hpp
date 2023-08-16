@@ -12,19 +12,38 @@
 #include <vector>
 
 namespace KumaECS {
-
 /*******************************************************************************
- * Definitions
+ * CONSTANTS
+ *
+ * These can be set before compilation depending on your game's needs.
  ******************************************************************************/
+
+// The maximum number of component types that a single Scene can keep track of.
 const size_t MAX_COMPONENT_TYPES = 64;
+
+// The maximum number of entities that a single Scene can keep track of.
 const size_t MAX_ENTITIES = 5000;
 
+/*******************************************************************************
+ * TYPES
+ ******************************************************************************/
+
+// In KumaECS, an Entity is just a unique ID. These Entities can have data
+// associated with them via the ComponentMap class.
 using Entity = size_t;
+
+// A set of unique Entity IDs.
 using EntitySet = std::set<Entity>;
+
+// A set of flags used by the Scene class to keep track of which components an
+// Entity is associated with, as well as which Entities each System is
+// interested in.
 using Signature = std::bitset<MAX_COMPONENT_TYPES>;
 
 /*******************************************************************************
- * System
+ * A System contains a set of Entities that share a Signature. This set is
+ * managed by a Scene as Entities are created and deleted, and as components are
+ * added and removed.
  ******************************************************************************/
 class System {
 public:
@@ -34,7 +53,7 @@ public:
 };
 
 /*******************************************************************************
- * ComponentMap
+ * The interface for a ComponentMap.
  ******************************************************************************/
 class IComponentMap {
 public:
@@ -44,6 +63,10 @@ public:
   virtual void RemoveComponent(Entity aEntity) = 0;
 };
 
+/*******************************************************************************
+ * A ComponentMap maintains a packed vector of component data and maps Entity
+ * IDs to indices in that vector.
+ ******************************************************************************/
 template <typename T> class ComponentMap : public IComponentMap {
 public:
   ComponentMap<T>(size_t aMaxComponents) : mSize(0) {
@@ -100,7 +123,9 @@ private:
 };
 
 /*******************************************************************************
- * Scene
+ * A Scene contains all the data necessary for a single screen/area of a game.
+ * This includes a list of Entity IDs, a list of Systems, and a ComponentMap for
+ * each type of component.
  ******************************************************************************/
 class Scene {
 public:
@@ -220,7 +245,6 @@ private:
   std::unordered_map<const char *, size_t> mComponentToIndexMap;
   std::vector<std::unique_ptr<IComponentMap>> mComponentMaps;
 };
-
 } // namespace KumaECS
 
 #endif
