@@ -19,10 +19,10 @@ namespace KumaECS {
  ******************************************************************************/
 
 // The maximum number of component types that a single Scene can keep track of.
-const size_t MAX_COMPONENT_TYPES = 64;
+#define MAX_COMPONENT_TYPES 64
 
 // The maximum number of entities that a single Scene can keep track of.
-const size_t MAX_ENTITIES = 5000;
+#define MAX_ENTITIES 5000
 
 /*******************************************************************************
  * TYPES
@@ -93,7 +93,7 @@ public:
     auto removedIndex = mEntityToIndexMap[aEntity];
     auto movedEntity = mIndexToEntityMap[lastValidIndex];
 
-    mComponents[removedIndex] = mComponents[lastValidIndex];
+    mComponents[removedIndex] = std::move(mComponents[lastValidIndex]);
     mEntityToIndexMap[movedEntity] = mEntityToIndexMap[aEntity];
     mIndexToEntityMap[removedIndex] = movedEntity;
 
