@@ -3,7 +3,7 @@ project(KumaECS)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_library(KumaECS INTERFACE)
+add_library(KumaECS)
 target_include_directories(KumaECS PUBLIC include)
 
 option(BUILD_TESTS "Build the unit tests." ON)
