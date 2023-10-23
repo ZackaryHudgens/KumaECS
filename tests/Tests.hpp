@@ -1,4 +1,7 @@
-#include "KumaECS/ECS.hpp"
+#include "KumaECS/ComponentMap.hpp"
+#include "KumaECS/Scene.hpp"
+#include "KumaECS/System.hpp"
+#include "KumaECS/Types.hpp"
 
 #include <cassert>
 #include <string>

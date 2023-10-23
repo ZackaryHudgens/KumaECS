@@ -1,121 +1,15 @@
-#ifndef ECS_HPP
-#define ECS_HPP
+#ifndef SCENE_HPP
+#define SCENE_HPP
 
-#include <bitset>
-#include <cassert>
-#include <cstddef>
 #include <memory>
 #include <queue>
-#include <set>
-#include <typeinfo>
-#include <unordered_map>
 #include <vector>
 
+#include "ComponentMap.hpp"
+#include "System.hpp"
+#include "Types.hpp"
+
 namespace KumaECS {
-/*******************************************************************************
- * CONSTANTS
- *
- * These can be set before compilation depending on your game's needs.
- ******************************************************************************/
-
-// The maximum number of component types that a single Scene can keep track of.
-#define MAX_COMPONENT_TYPES 64
-
-// The maximum number of entities that a single Scene can keep track of.
-#define MAX_ENTITIES 5000
-
-/*******************************************************************************
- * TYPES
- ******************************************************************************/
-
-// In KumaECS, an Entity is just a unique ID. These Entities can have data
-// associated with them via the ComponentMap class.
-using Entity = size_t;
-
-// A set of unique Entity IDs.
-using EntitySet = std::set<Entity>;
-
-// A set of flags used by the Scene class to keep track of which components an
-// Entity is associated with, as well as which Entities each System is
-// interested in.
-using Signature = std::bitset<MAX_COMPONENT_TYPES>;
-
-// A System contains a set of Entities that share a Signature. This set is
-// managed by a Scene as Entities are created and deleted, and as components are
-// added and removed.
-class System {
-public:
-  virtual ~System() = default;
-
-  EntitySet mEntities;
-};
-
-// The interface for a ComponentMap.
-class IComponentMap {
-public:
-  virtual ~IComponentMap() = default;
-
-  virtual bool ContainsComponent(Entity aEntity) const = 0;
-  virtual void RemoveComponent(Entity aEntity) = 0;
-};
-
-// A ComponentMap maintains a packed vector of component data and maps Entity
-// IDs to indices in that vector.
-template <typename T> class ComponentMap : public IComponentMap {
-public:
-  ComponentMap<T>(size_t aMaxComponents) : mSize(0) {
-    mComponents.reserve(aMaxComponents);
-    for (size_t i = 0; i < aMaxComponents; ++i) {
-      mComponents.emplace_back();
-    }
-  }
-
-  bool ContainsComponent(Entity aEntity) const override {
-    return mEntityToIndexMap.find(aEntity) != mEntityToIndexMap.end();
-  }
-
-  T &AddComponent(Entity aEntity) {
-    assert(mSize < mComponents.size());
-    assert(mEntityToIndexMap.find(aEntity) == mEntityToIndexMap.end());
-
-    mEntityToIndexMap[aEntity] = mSize;
-    mIndexToEntityMap[mSize] = aEntity;
-    mComponents[mEntityToIndexMap[aEntity]] = T();
-    ++mSize;
-
-    return mComponents[mEntityToIndexMap[aEntity]];
-  }
-
-  void RemoveComponent(Entity aEntity) override {
-    assert(mEntityToIndexMap.find(aEntity) != mEntityToIndexMap.end());
-
-    auto lastValidIndex = mSize - 1;
-    auto removedIndex = mEntityToIndexMap[aEntity];
-    auto movedEntity = mIndexToEntityMap[lastValidIndex];
-
-    mComponents[removedIndex] = std::move(mComponents[lastValidIndex]);
-    mEntityToIndexMap[movedEntity] = mEntityToIndexMap[aEntity];
-    mIndexToEntityMap[removedIndex] = movedEntity;
-
-    mEntityToIndexMap.erase(aEntity);
-    mIndexToEntityMap.erase(lastValidIndex);
-
-    --mSize;
-  }
-
-  T &GetComponent(Entity aEntity) {
-    assert(mEntityToIndexMap.find(aEntity) != mEntityToIndexMap.end());
-    return mComponents[mEntityToIndexMap[aEntity]];
-  }
-
-private:
-  std::unordered_map<Entity, size_t> mEntityToIndexMap;
-  std::unordered_map<size_t, Entity> mIndexToEntityMap;
-  std::vector<T> mComponents;
-
-  size_t mSize;
-};
-
 // A Scene contains all the data necessary for a single screen/area of a game.
 // This includes a list of Entity IDs, a list of Systems, and a ComponentMap for
 // each type of component.
@@ -239,4 +133,4 @@ private:
 };
 } // namespace KumaECS
 
-#endif
+#endif // !SCENE_HPP
