@@ -9,6 +9,11 @@ namespace KumaECS {
 // added and removed.
 class System {
 public:
+  System() = default;
+  System(System &&) = default;
+  System(const System &) = default;
+  System &operator=(System &&) = default;
+  System &operator=(const System &) = default;
   virtual ~System() = default;
 
   EntitySet mEntities;

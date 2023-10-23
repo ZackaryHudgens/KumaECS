@@ -11,6 +11,11 @@ namespace KumaECS {
 // The interface for a ComponentMap.
 class IComponentMap {
 public:
+  IComponentMap() = default;
+  IComponentMap(IComponentMap &&) = default;
+  IComponentMap(const IComponentMap &) = default;
+  IComponentMap &operator=(IComponentMap &&) = default;
+  IComponentMap &operator=(const IComponentMap &) = default;
   virtual ~IComponentMap() = default;
 
   virtual bool ContainsComponent(Entity aEntity) const = 0;
@@ -27,6 +32,12 @@ public:
       mComponents.emplace_back();
     }
   }
+
+  ComponentMap<T>(ComponentMap<T> &&) = default;
+  ComponentMap<T>(const ComponentMap<T> &) = default;
+  ComponentMap<T> &operator=(ComponentMap<T> &&) = default;
+  ComponentMap<T> &operator=(const ComponentMap<T> &) = default;
+  ~ComponentMap<T>() = default;
 
   bool ContainsComponent(Entity aEntity) const override {
     return mEntityToIndexMap.find(aEntity) != mEntityToIndexMap.end();

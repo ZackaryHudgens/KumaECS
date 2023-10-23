@@ -22,6 +22,12 @@ public:
     }
   }
 
+  Scene(Scene &&) = default;
+  Scene(const Scene &) = default;
+  Scene &operator=(Scene &&) = default;
+  Scene &operator=(const Scene &) = default;
+  ~Scene() = default;
+
   Entity CreateEntity() {
     assert(!mAvailableEntities.empty());
 
