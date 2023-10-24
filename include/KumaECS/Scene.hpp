@@ -116,6 +116,17 @@ public:
         ->ContainsComponent(aEntity);
   }
 
+  std::vector<Entity> GetEntitiesWithSignature(const Signature &aSignature) {
+    std::vector<Entity> entities;
+    for (size_t i = 0; i < mEntitySignatures.size(); ++i) {
+      if ((mEntitySignatures[i] & aSignature) == aSignature) {
+        entities.emplace_back(i);
+      }
+    }
+
+    return entities;
+  }
+
   template <typename T> T *RegisterSystemType(const Signature &aSignature) {
     auto name = typeid(T).name();
     assert(mSystemToIndexMap.find(name) == mSystemToIndexMap.end());
