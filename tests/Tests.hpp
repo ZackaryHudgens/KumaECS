@@ -99,103 +99,103 @@ inline void TestSceneSignatureManagement() {
   scene.AddComponentToEntity<ComponentA>(entityC);
   scene.AddComponentToEntity<ComponentB>(entityC);
 
-  assert(systemA->mEntities.count(entityA));
-  assert(!systemA->mEntities.count(entityB));
-  assert(systemA->mEntities.count(entityC));
-  assert(!systemA->mEntities.count(entityD));
-  assert(!systemA->mEntities.count(entityE));
+  assert(systemA->GetEntities().count(entityA));
+  assert(!systemA->GetEntities().count(entityB));
+  assert(systemA->GetEntities().count(entityC));
+  assert(!systemA->GetEntities().count(entityD));
+  assert(!systemA->GetEntities().count(entityE));
 
-  assert(!systemB->mEntities.count(entityA));
-  assert(systemB->mEntities.count(entityB));
-  assert(systemB->mEntities.count(entityC));
-  assert(!systemB->mEntities.count(entityD));
-  assert(!systemB->mEntities.count(entityE));
+  assert(!systemB->GetEntities().count(entityA));
+  assert(systemB->GetEntities().count(entityB));
+  assert(systemB->GetEntities().count(entityC));
+  assert(!systemB->GetEntities().count(entityD));
+  assert(!systemB->GetEntities().count(entityE));
 
-  assert(!systemC->mEntities.count(entityA));
-  assert(!systemC->mEntities.count(entityB));
-  assert(systemC->mEntities.count(entityC));
-  assert(!systemC->mEntities.count(entityD));
-  assert(!systemC->mEntities.count(entityE));
+  assert(!systemC->GetEntities().count(entityA));
+  assert(!systemC->GetEntities().count(entityB));
+  assert(systemC->GetEntities().count(entityC));
+  assert(!systemC->GetEntities().count(entityD));
+  assert(!systemC->GetEntities().count(entityE));
 
   scene.RemoveComponentFromEntity<ComponentA>(entityA);
 
-  assert(!systemA->mEntities.count(entityA));
-  assert(!systemA->mEntities.count(entityB));
-  assert(systemA->mEntities.count(entityC));
-  assert(!systemA->mEntities.count(entityD));
-  assert(!systemA->mEntities.count(entityE));
+  assert(!systemA->GetEntities().count(entityA));
+  assert(!systemA->GetEntities().count(entityB));
+  assert(systemA->GetEntities().count(entityC));
+  assert(!systemA->GetEntities().count(entityD));
+  assert(!systemA->GetEntities().count(entityE));
 
-  assert(!systemB->mEntities.count(entityA));
-  assert(systemB->mEntities.count(entityB));
-  assert(systemB->mEntities.count(entityC));
-  assert(!systemB->mEntities.count(entityD));
-  assert(!systemB->mEntities.count(entityE));
+  assert(!systemB->GetEntities().count(entityA));
+  assert(systemB->GetEntities().count(entityB));
+  assert(systemB->GetEntities().count(entityC));
+  assert(!systemB->GetEntities().count(entityD));
+  assert(!systemB->GetEntities().count(entityE));
 
-  assert(!systemC->mEntities.count(entityA));
-  assert(!systemC->mEntities.count(entityB));
-  assert(systemC->mEntities.count(entityC));
-  assert(!systemC->mEntities.count(entityD));
-  assert(!systemC->mEntities.count(entityE));
+  assert(!systemC->GetEntities().count(entityA));
+  assert(!systemC->GetEntities().count(entityB));
+  assert(systemC->GetEntities().count(entityC));
+  assert(!systemC->GetEntities().count(entityD));
+  assert(!systemC->GetEntities().count(entityE));
 
   scene.RemoveComponentFromEntity<ComponentB>(entityB);
 
-  assert(!systemA->mEntities.count(entityA));
-  assert(!systemA->mEntities.count(entityB));
-  assert(systemA->mEntities.count(entityC));
-  assert(!systemA->mEntities.count(entityD));
-  assert(!systemA->mEntities.count(entityE));
+  assert(!systemA->GetEntities().count(entityA));
+  assert(!systemA->GetEntities().count(entityB));
+  assert(systemA->GetEntities().count(entityC));
+  assert(!systemA->GetEntities().count(entityD));
+  assert(!systemA->GetEntities().count(entityE));
 
-  assert(!systemB->mEntities.count(entityA));
-  assert(!systemB->mEntities.count(entityB));
-  assert(systemB->mEntities.count(entityC));
-  assert(!systemB->mEntities.count(entityD));
-  assert(!systemB->mEntities.count(entityE));
+  assert(!systemB->GetEntities().count(entityA));
+  assert(!systemB->GetEntities().count(entityB));
+  assert(systemB->GetEntities().count(entityC));
+  assert(!systemB->GetEntities().count(entityD));
+  assert(!systemB->GetEntities().count(entityE));
 
-  assert(!systemC->mEntities.count(entityA));
-  assert(!systemC->mEntities.count(entityB));
-  assert(systemC->mEntities.count(entityC));
-  assert(!systemC->mEntities.count(entityD));
-  assert(!systemC->mEntities.count(entityE));
+  assert(!systemC->GetEntities().count(entityA));
+  assert(!systemC->GetEntities().count(entityB));
+  assert(systemC->GetEntities().count(entityC));
+  assert(!systemC->GetEntities().count(entityD));
+  assert(!systemC->GetEntities().count(entityE));
 
   scene.RemoveComponentFromEntity<ComponentA>(entityC);
 
-  assert(!systemA->mEntities.count(entityA));
-  assert(!systemA->mEntities.count(entityB));
-  assert(!systemA->mEntities.count(entityC));
-  assert(!systemA->mEntities.count(entityD));
-  assert(!systemA->mEntities.count(entityE));
+  assert(!systemA->GetEntities().count(entityA));
+  assert(!systemA->GetEntities().count(entityB));
+  assert(!systemA->GetEntities().count(entityC));
+  assert(!systemA->GetEntities().count(entityD));
+  assert(!systemA->GetEntities().count(entityE));
 
-  assert(!systemB->mEntities.count(entityA));
-  assert(!systemB->mEntities.count(entityB));
-  assert(systemB->mEntities.count(entityC));
-  assert(!systemB->mEntities.count(entityD));
-  assert(!systemB->mEntities.count(entityE));
+  assert(!systemB->GetEntities().count(entityA));
+  assert(!systemB->GetEntities().count(entityB));
+  assert(systemB->GetEntities().count(entityC));
+  assert(!systemB->GetEntities().count(entityD));
+  assert(!systemB->GetEntities().count(entityE));
 
-  assert(!systemC->mEntities.count(entityA));
-  assert(!systemC->mEntities.count(entityB));
-  assert(!systemC->mEntities.count(entityC));
-  assert(!systemC->mEntities.count(entityD));
-  assert(!systemC->mEntities.count(entityE));
+  assert(!systemC->GetEntities().count(entityA));
+  assert(!systemC->GetEntities().count(entityB));
+  assert(!systemC->GetEntities().count(entityC));
+  assert(!systemC->GetEntities().count(entityD));
+  assert(!systemC->GetEntities().count(entityE));
 
   scene.DestroyEntity(entityC);
 
-  assert(!systemA->mEntities.count(entityA));
-  assert(!systemA->mEntities.count(entityB));
-  assert(!systemA->mEntities.count(entityC));
-  assert(!systemA->mEntities.count(entityD));
-  assert(!systemA->mEntities.count(entityE));
+  assert(!systemA->GetEntities().count(entityA));
+  assert(!systemA->GetEntities().count(entityB));
+  assert(!systemA->GetEntities().count(entityC));
+  assert(!systemA->GetEntities().count(entityD));
+  assert(!systemA->GetEntities().count(entityE));
 
-  assert(!systemB->mEntities.count(entityA));
-  assert(!systemB->mEntities.count(entityB));
-  assert(!systemB->mEntities.count(entityC));
-  assert(!systemB->mEntities.count(entityD));
-  assert(!systemB->mEntities.count(entityE));
+  assert(!systemB->GetEntities().count(entityA));
+  assert(!systemB->GetEntities().count(entityB));
+  assert(!systemB->GetEntities().count(entityC));
+  assert(!systemB->GetEntities().count(entityD));
+  assert(!systemB->GetEntities().count(entityE));
 
-  assert(!systemC->mEntities.count(entityA));
-  assert(!systemC->mEntities.count(entityB));
-  assert(!systemC->mEntities.count(entityC));
-  assert(!systemC->mEntities.count(entityD));
-  assert(!systemC->mEntities.count(entityE));
+  assert(!systemC->GetEntities().count(entityA));
+  assert(!systemC->GetEntities().count(entityB));
+  assert(!systemC->GetEntities().count(entityC));
+  assert(!systemC->GetEntities().count(entityD));
+  assert(!systemC->GetEntities().count(entityE));
 }
 
 /******************************************************************************/
