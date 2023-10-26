@@ -15,8 +15,8 @@ namespace KumaECS {
 // each type of component.
 class Scene {
 public:
-  Scene() {
-    for (size_t i = 0; i < MAX_ENTITIES; ++i) {
+  Scene(size_t aMaxEntities) {
+    for (size_t i = 0; i < aMaxEntities; ++i) {
       mAvailableEntities.push(i);
       mEntitySignatures.emplace_back();
     }

@@ -65,7 +65,7 @@ inline void TestComponentMap() {
 
 /******************************************************************************/
 inline void TestSceneSignatureManagement() {
-  Scene scene;
+  Scene scene(10);
   scene.RegisterComponentType<ComponentA>(100);
   scene.RegisterComponentType<ComponentB>(100);
 
@@ -200,7 +200,7 @@ inline void TestSceneSignatureManagement() {
 
 /******************************************************************************/
 inline void TestSceneEntityManagement() {
-  Scene scene;
+  Scene scene(10);
   scene.RegisterComponentType<ComponentA>(100);
   scene.RegisterComponentType<ComponentB>(100);
 

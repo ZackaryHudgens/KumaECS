@@ -9,9 +9,6 @@ namespace KumaECS {
 // The maximum number of component types that a single Scene can keep track of.
 const size_t MAX_COMPONENT_TYPES = 64;
 
-// The maximum number of entities that a single Scene can keep track of.
-const size_t MAX_ENTITIES = 5000;
-
 // In KumaECS, an Entity is just a unique ID. These Entities can have data
 // associated with them via the ComponentMap class.
 using Entity = size_t;
