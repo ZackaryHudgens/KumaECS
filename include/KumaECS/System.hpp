@@ -20,6 +20,8 @@ public:
   System &operator=(const System &) = default;
   virtual ~System() = default;
 
+  virtual void Operate(double dt) {}
+
   const EntitySet &GetEntities() const { return mEntities; }
 
 private:

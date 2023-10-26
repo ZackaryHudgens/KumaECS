@@ -10,9 +10,13 @@
 #include "Types.hpp"
 
 namespace KumaECS {
-// A Scene contains all the data necessary for a single screen/area of a game.
-// This includes a list of Entity IDs, a list of Systems, and a ComponentMap for
-// each type of component.
+// A Scene contains all the information necessary for an area or level of a
+// game. This includes a list of Entity IDs, a list of Systems, and a
+// ComponentMap for each type of component.
+//
+// Depending on your needs, you may need to use one Scene or multiple Scenes.
+// For example, a game may have a Scene for the main menu, a second Scene for
+// gameplay, and a third Scene for the credits screen.
 class Scene {
 public:
   Scene(size_t aMaxEntities) {
@@ -27,6 +31,12 @@ public:
   Scene &operator=(Scene &&) = default;
   Scene &operator=(const Scene &) = default;
   ~Scene() = default;
+
+  void OperateSystems(double dt) {
+    for (auto &system : mSystems) {
+      system->Operate(dt);
+    }
+  }
 
   Entity CreateEntity() {
     assert(!mAvailableEntities.empty());
