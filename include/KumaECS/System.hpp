@@ -20,7 +20,7 @@ public:
   System &operator=(const System &) = default;
   virtual ~System() = default;
 
-  virtual void Operate(double dt) {}
+  virtual void Operate(Scene &aScene, double dt) {}
 
   const EntitySet &GetEntities() const { return mEntities; }
 

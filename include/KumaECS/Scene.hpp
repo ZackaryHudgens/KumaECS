@@ -34,7 +34,7 @@ public:
 
   void OperateSystems(double dt) {
     for (auto &system : mSystems) {
-      system->Operate(dt);
+      system->Operate(*this, dt);
     }
   }
 
