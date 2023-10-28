@@ -126,11 +126,11 @@ public:
         ->ContainsComponent(aEntity);
   }
 
-  std::vector<Entity> GetEntitiesWithSignature(const Signature &aSignature) {
-    std::vector<Entity> entities;
+  EntitySet GetEntitiesWithSignature(const Signature &aSignature) {
+    EntitySet entities;
     for (size_t i = 0; i < mEntitySignatures.size(); ++i) {
       if ((mEntitySignatures[i] & aSignature) == aSignature) {
-        entities.emplace_back(i);
+        entities.insert(i);
       }
     }
 
