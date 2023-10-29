@@ -137,6 +137,12 @@ public:
     return entities;
   }
 
+  template <typename T> EntitySet GetEntitiesWithComponent() {
+    Signature sig;
+    AddComponentToSignature<T>(sig);
+    return GetEntitiesWithSignature(sig);
+  }
+
   template <typename T> T *RegisterSystemType(const Signature &aSignature) {
     auto name = typeid(T).name();
     assert(mSystemToIndexMap.find(name) == mSystemToIndexMap.end());
