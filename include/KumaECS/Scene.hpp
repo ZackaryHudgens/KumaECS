@@ -2,53 +2,40 @@
 #define SCENE_HPP
 
 #include <memory>
-#include <queue>
 #include <vector>
 
 #include "ComponentMap.hpp"
+#include "Entity.hpp"
+#include "EntityFactory.hpp"
 #include "System.hpp"
 #include "Types.hpp"
 
 namespace KumaECS {
-// A Scene contains all the information necessary for an area or level of a
-// game. This includes a list of Entity IDs, a list of Systems, and a
-// ComponentMap for each type of component.
-//
-// Depending on your needs, you may need to use one Scene or multiple Scenes.
-// For example, a game may have a Scene for the main menu, a second Scene for
-// gameplay, and a third Scene for the credits screen.
+class EntityHandle;
+
+/**
+ * A Scene contains all the information necessary for an area or level of a
+ * game. This includes a list of Entities, a list of Systems, and a ComponentMap
+ * for each type of component.
+ *
+ * A game may contain multiple Scenes; for example, there may be separate Scenes
+ * for a main menu, a main gameplay loop, and a credits screen.
+ */
 class Scene {
  public:
-  Scene(size_t aMaxEntities) {
-    for (size_t i = 0; i < aMaxEntities; ++i) {
-      mAvailableEntities.push(i);
-      mEntitySignatures.emplace_back();
-    }
-  }
+  Scene() = default;
 
-  Scene(Scene &&) = default;
-  Scene(const Scene &) = default;
-  Scene &operator=(Scene &&) = default;
-  Scene &operator=(const Scene &) = default;
-  ~Scene() = default;
+  void OperateSystems(double dt);
 
-  void OperateSystems(double dt) {
-    for (auto &system : mSystems) {
-      system->Operate(*this, dt);
-    }
-  }
+  EntityHandle CreateEntity();
+  void DestroyEntity(EntityHandle aEntity);
 
-  Entity CreateEntity() {
-    assert(!mAvailableEntities.empty());
+  /*
+   {
+    mEntityFactory.DestroyEntity(aEntity);
 
-    Entity entity = mAvailableEntities.front();
-    mAvailableEntities.pop();
-    return entity;
-  }
-
-  void DestroyEntity(Entity aEntity) {
     mAvailableEntities.push(aEntity);
-    mEntitySignatures[aEntity].reset();
+    mEntitySignatures[aEntity.GetID()].reset();
 
     for (auto &system : mSystems) {
       system->mEntities.erase(aEntity);
@@ -60,6 +47,7 @@ class Scene {
       }
     }
   }
+  */
 
   template <typename T>
   void RegisterComponentType(size_t aMax) {
@@ -68,6 +56,17 @@ class Scene {
 
     mComponentToIndexMap[name] = mComponentMaps.size();
     mComponentMaps.emplace_back(std::make_unique<ComponentMap<T>>(aMax));
+  }
+
+  template <typename T>
+  T *RegisterSystemType(const Signature &aSignature) {
+    auto name = typeid(T).name();
+    assert(mSystemToIndexMap.find(name) == mSystemToIndexMap.end());
+
+    mSystemToIndexMap.emplace(name, mSystemSignatures.size());
+    mSystemSignatures.emplace_back(aSignature);
+    mSystems.emplace_back(std::make_unique<T>());
+    return static_cast<T *>(mSystems.back().get());
   }
 
   template <typename T>
@@ -132,37 +131,29 @@ class Scene {
         ->ContainsComponent(aEntity);
   }
 
-  EntitySet GetEntitiesWithSignature(const Signature &aSignature) {
-    EntitySet entities;
-    for (size_t i = 0; i < mEntitySignatures.size(); ++i) {
-      if ((mEntitySignatures[i] & aSignature) == aSignature) {
-        entities.insert(i);
+  /*
+    EntitySet GetEntitiesWithSignature(const Signature &aSignature) {
+      EntitySet entities;
+      for (size_t i = 0; i < mEntitySignatures.size(); ++i) {
+        if ((mEntitySignatures[i] & aSignature) == aSignature) {
+          entities.insert(i);
+        }
       }
+
+      return entities;
     }
 
-    return entities;
-  }
-
-  template <typename T>
-  EntitySet GetEntitiesWithComponent() {
-    Signature sig;
-    AddComponentToSignature<T>(sig);
-    return GetEntitiesWithSignature(sig);
-  }
-
-  template <typename T>
-  T *RegisterSystemType(const Signature &aSignature) {
-    auto name = typeid(T).name();
-    assert(mSystemToIndexMap.find(name) == mSystemToIndexMap.end());
-
-    mSystemToIndexMap.emplace(name, mSystemSignatures.size());
-    mSystemSignatures.emplace_back(aSignature);
-    mSystems.emplace_back(std::make_unique<T>());
-    return static_cast<T *>(mSystems.back().get());
-  }
+    template <typename T>
+    EntitySet GetEntitiesWithComponent() {
+      Signature sig;
+      AddComponentToSignature<T>(sig);
+      return GetEntitiesWithSignature(sig);
+    }
+    */
 
  private:
-  std::queue<Entity> mAvailableEntities;
+  EntityFactory mEntityFactory;
+
   std::vector<Signature> mEntitySignatures;
 
   std::unordered_map<const char *, size_t> mSystemToIndexMap;

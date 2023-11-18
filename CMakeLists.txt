@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(KumaECS)
 
-add_library(KumaECS INTERFACE)
-target_include_directories(KumaECS INTERFACE include)
+add_subdirectory(src)
 
 option(BUILD_TESTS "Build the unit tests." ON)
 
