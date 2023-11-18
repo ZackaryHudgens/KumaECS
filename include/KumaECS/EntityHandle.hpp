@@ -16,7 +16,7 @@ class EntityHandle {
   EntityHandle(Entity aEntity, Scene& aScene)
       : mEntity(aEntity), mScene(&aScene) {}
 
-  Entity GetEntity() const { return mEntity; }
+  Entity GetEntityRaw() const { return mEntity; }
   bool IsValid() const { return mEntity.IsValid(); }
 
   template <typename T>
@@ -43,7 +43,7 @@ class EntityHandle {
   Scene* mScene;
 };
 
-using EntityHandleSet = std::set<EntityHandle>;
+using EntitySet = std::set<EntityHandle>;
 }  // namespace KumaECS
 
 #endif

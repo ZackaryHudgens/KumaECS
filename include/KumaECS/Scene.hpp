@@ -8,7 +8,6 @@
 #include "Entity.hpp"
 #include "EntityFactory.hpp"
 #include "System.hpp"
-#include "Types.hpp"
 
 namespace KumaECS {
 class EntityHandle;
@@ -23,59 +22,55 @@ class EntityHandle;
  */
 class Scene {
  public:
-  Scene() = default;
-
-  void OperateSystems(double dt);
+  /****************************************************************************
+   * Entity methods
+   ***************************************************************************/
 
   EntityHandle CreateEntity();
   void DestroyEntity(EntityHandle aEntity);
 
-  /*
-   {
-    mEntityFactory.DestroyEntity(aEntity);
-
-    mAvailableEntities.push(aEntity);
-    mEntitySignatures[aEntity.GetID()].reset();
-
-    for (auto &system : mSystems) {
-      system->mEntities.erase(aEntity);
-    }
-
-    for (auto &map : mComponentMaps) {
-      if (map->ContainsComponent(aEntity)) {
-        map->RemoveComponent(aEntity);
-      }
-    }
-  }
-  */
+  /****************************************************************************
+   * Component methods
+   ***************************************************************************/
 
   template <typename T>
   void RegisterComponentType(size_t aMax) {
     auto name = typeid(T).name();
     assert(mComponentToIndexMap.find(name) == mComponentToIndexMap.end());
 
+    // Create a map for the new component type.
     mComponentToIndexMap[name] = mComponentMaps.size();
     mComponentMaps.emplace_back(std::make_unique<ComponentMap<T>>(aMax));
+
+    // Update all existing Signatures.
+    for (auto &&sig : mEntitySignatures) {
+      sig.AddExtra();
+    }
+
+    for (auto &&sig : mSystemSignatures) {
+      sig.AddExtra();
+    }
   }
 
   template <typename T>
-  T *RegisterSystemType(const Signature &aSignature) {
-    auto name = typeid(T).name();
-    assert(mSystemToIndexMap.find(name) == mSystemToIndexMap.end());
-
-    mSystemToIndexMap.emplace(name, mSystemSignatures.size());
-    mSystemSignatures.emplace_back(aSignature);
-    mSystems.emplace_back(std::make_unique<T>());
-    return static_cast<T *>(mSystems.back().get());
-  }
-
-  template <typename T>
-  void AddComponentToSignature(Signature &aSignature) {
+  void GetComponentIndex() {
     auto name = typeid(T).name();
     assert(mComponentToIndexMap.find(name) != mComponentToIndexMap.end());
-
-    aSignature.set(mComponentToIndexMap[name]);
+    return mComponentToIndexMap.at(name);
   }
+
+  size_t GetNumComponentTypes() const { return mComponentMaps.size(); }
+
+  /****************************************************************************
+   * System methods
+   ***************************************************************************/
+
+  void AddSystem(std::unique_ptr<System> aSystem);
+  void OperateSystems(double dt);
+
+  /****************************************************************************
+   * Entity-Component interoperational methods
+   ***************************************************************************/
 
   template <typename T>
   T &AddComponentToEntity(Entity aEntity) {
@@ -156,7 +151,6 @@ class Scene {
 
   std::vector<Signature> mEntitySignatures;
 
-  std::unordered_map<const char *, size_t> mSystemToIndexMap;
   std::vector<Signature> mSystemSignatures;
   std::vector<std::unique_ptr<System>> mSystems;
 

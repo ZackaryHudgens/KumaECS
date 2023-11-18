@@ -6,13 +6,16 @@
 
 namespace KumaECS {
 /**
- * The Signature is a means of keeping track of which component types
+ * A Signature is a means of keeping track of which component types
  * an Entity has, as well as which component types a System in interested in.
  */
 class Signature {
  public:
+  Signature(size_t aSize) : mIndices(aSize, 0) {}
+
   void Set(size_t aIndex) { mIndices.at(aIndex) = 1; }
   void Unset(size_t aIndex) { mIndices.at(aIndex) = 0; }
+  void AddExtra() { mIndices.emplace_back(0); }
 
   bool Matches(const Signature& aSignature) const {
     if (aSignature.mIndices.size() != mIndices.size()) {

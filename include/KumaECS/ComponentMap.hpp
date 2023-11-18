@@ -5,10 +5,12 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Types.hpp"
+#include "Entity.hpp"
 
 namespace KumaECS {
-// The interface for a ComponentMap.
+/**
+ * The interface for a ComponentMap.
+ */
 class IComponentMap {
  public:
   virtual ~IComponentMap() = default;
@@ -17,8 +19,10 @@ class IComponentMap {
   virtual void RemoveComponent(Entity aEntity) = 0;
 };
 
-// A ComponentMap maintains a packed vector of component data and maps
-// Entity IDs to indices in that vector.
+/**
+ * A ComponentMap maintains a packed vector of component data and maps Entity
+ * IDs to indices in that vector.
+ */
 template <typename T>
 class ComponentMap : public IComponentMap {
  public:

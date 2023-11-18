@@ -2,6 +2,7 @@
 #define SYSTEM_HPP
 
 #include "EntityHandle.hpp"
+#include "SignatureHandle.hpp"
 
 namespace KumaECS {
 class Scene;
@@ -17,12 +18,13 @@ class System {
  public:
   virtual ~System() = default;
 
+  virtual void SetSignature(SignatureHandle &aSignature) = 0;
   virtual void Operate(Scene &aScene, double dt) = 0;
 
-  const EntityHandleSet &GetEntities() const { return mEntities; }
+  const EntitySet &GetEntities() const { return mEntities; }
 
  private:
-  EntityHandleSet mEntities;
+  EntitySet mEntities;
 };
 }  // namespace KumaECS
 
