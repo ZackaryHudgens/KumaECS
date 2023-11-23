@@ -19,6 +19,8 @@ class EntityHandle {
   Entity GetEntityRaw() const { return mEntity; }
   bool IsValid() const { return mEntity.IsValid(); }
 
+  void Destroy() { mScene->DestroyEntity(mEntity); }
+
   template <typename T>
   void AddComponent() {
     mScene->AddComponentToEntity<T>(mEntity);

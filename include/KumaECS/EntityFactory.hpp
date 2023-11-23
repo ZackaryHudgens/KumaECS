@@ -1,6 +1,7 @@
 #ifndef ENTITYFACTORY_HPP
 #define ENTITYFACTORY_HPP
 
+#include <cstddef>
 #include <queue>
 
 namespace KumaECS {
@@ -14,7 +15,7 @@ class EntityFactory {
   EntityFactory() : mCount(1) {}
 
   Entity CreateEntity() {
-    unsigned int id = 0;
+    size_t id = 0;
     if (!mAvailableIDs.empty()) {
       id = mAvailableIDs.front();
       mAvailableIDs.pop();
@@ -29,8 +30,8 @@ class EntityFactory {
   void DestroyEntity(Entity aEntity) { mAvailableIDs.push(aEntity.GetID()); }
 
  private:
-  unsigned int mCount;
-  std::queue<unsigned int> mAvailableIDs;
+  size_t mCount;
+  std::queue<size_t> mAvailableIDs;
 };
 }  // namespace KumaECS
 

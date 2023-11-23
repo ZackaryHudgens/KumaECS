@@ -27,7 +27,7 @@ class Scene {
    ***************************************************************************/
 
   EntityHandle CreateEntity();
-  void DestroyEntity(EntityHandle aEntity);
+  void DestroyEntity(Entity aEntity);
 
   /****************************************************************************
    * Component methods
@@ -39,16 +39,17 @@ class Scene {
     assert(mComponentToIndexMap.find(name) == mComponentToIndexMap.end());
 
     // Create a map for the new component type.
-    mComponentToIndexMap[name] = mComponentMaps.size();
+    mComponentToIndexMap.emplace(name, mComponentMaps.size());
     mComponentMaps.emplace_back(std::make_unique<ComponentMap<T>>(aMax));
 
-    // Update all existing Signatures.
+    // Update each Entity's Signature.
     for (auto &&sig : mEntitySignatures) {
-      sig.AddExtra();
+      sig.mIndices.emplace_back(0);
     }
 
+    // Update each System's Signature.
     for (auto &&sig : mSystemSignatures) {
-      sig.AddExtra();
+      sig.mIndices.emplace_back(0);
     }
   }
 
@@ -77,16 +78,13 @@ class Scene {
     auto name = typeid(T).name();
     assert(mComponentToIndexMap.find(name) != mComponentToIndexMap.end());
 
-    mEntitySignatures[aEntity].set(mComponentToIndexMap[name]);
+    // Update the Entity's Signature and add it to any relevant Systems.
+    auto &entitySignature = mEntitySignatures.at(aEntity.GetID());
+    entitySignature.Set(mComponentToIndexMap.at(name));
+    AddEntityToRelevantSystems(aEntity);
 
-    for (size_t i = 0; i < mSystems.size(); ++i) {
-      auto systemSignature = mSystemSignatures[i];
-      if ((systemSignature & mEntitySignatures[aEntity]) == systemSignature) {
-        mSystems[i]->mEntities.insert(aEntity);
-      }
-    }
-
-    auto componentMap = mComponentMaps[mComponentToIndexMap[name]].get();
+    // Create the component and return a reference.
+    auto componentMap = mComponentMaps.at(mComponentToIndexMap.at(name)).get();
     return static_cast<ComponentMap<T> *>(componentMap)->AddComponent(aEntity);
   }
 
@@ -95,16 +93,14 @@ class Scene {
     auto name = typeid(T).name();
     assert(mComponentToIndexMap.find(name) != mComponentToIndexMap.end());
 
-    auto componentMap = mComponentMaps[mComponentToIndexMap[name]].get();
-    static_cast<ComponentMap<T> *>(componentMap)->RemoveComponent(aEntity);
-    mEntitySignatures[aEntity].reset(mComponentToIndexMap[name]);
+    // Update the Entity's Signature and remove it from any relevant Systems.
+    auto &entitySignature = mEntitySignatures.at(aEntity.GetID());
+    entitySignature.Set(mComponentToIndexMap.at(name));
+    RemoveEntityFromRelevantSystems(aEntity);
 
-    for (size_t i = 0; i < mSystems.size(); ++i) {
-      auto systemSignature = mSystemSignatures[i];
-      if ((systemSignature & mEntitySignatures[aEntity]) != systemSignature) {
-        mSystems[i]->mEntities.erase(aEntity);
-      }
-    }
+    // Remove the component from the component map.
+    auto componentMap = mComponentMaps.at(mComponentToIndexMap.at(name)).get();
+    static_cast<ComponentMap<T> *>(componentMap)->RemoveComponent(aEntity);
   }
 
   template <typename T>
@@ -112,46 +108,19 @@ class Scene {
     auto name = typeid(T).name();
     assert(mComponentToIndexMap.find(name) != mComponentToIndexMap.end());
 
-    auto componentMap = mComponentMaps[mComponentToIndexMap[name]].get();
+    auto componentMap = mComponentMaps.at(mComponentToIndexMap.at(name)).get();
     return static_cast<ComponentMap<T> *>(componentMap)->GetComponent(aEntity);
   }
 
-  template <typename T>
-  bool DoesEntityHaveComponent(Entity aEntity) {
-    auto name = typeid(T).name();
-    assert(mComponentToIndexMap.find(name) != mComponentToIndexMap.end());
-
-    auto componentMap = mComponentMaps[mComponentToIndexMap[name]].get();
-    return static_cast<ComponentMap<T> *>(componentMap)
-        ->ContainsComponent(aEntity);
-  }
-
-  /*
-    EntitySet GetEntitiesWithSignature(const Signature &aSignature) {
-      EntitySet entities;
-      for (size_t i = 0; i < mEntitySignatures.size(); ++i) {
-        if ((mEntitySignatures[i] & aSignature) == aSignature) {
-          entities.insert(i);
-        }
-      }
-
-      return entities;
-    }
-
-    template <typename T>
-    EntitySet GetEntitiesWithComponent() {
-      Signature sig;
-      AddComponentToSignature<T>(sig);
-      return GetEntitiesWithSignature(sig);
-    }
-    */
-
  private:
+  void AddEntityToRelevantSystems(Entity aEntity);
+  void RemoveEntityFromRelevantSystems(Entity aEntity);
+
   EntityFactory mEntityFactory;
 
   std::vector<Signature> mEntitySignatures;
-
   std::vector<Signature> mSystemSignatures;
+
   std::vector<std::unique_ptr<System>> mSystems;
 
   std::unordered_map<const char *, size_t> mComponentToIndexMap;

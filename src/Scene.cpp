@@ -10,18 +10,18 @@ EntityHandle Scene::CreateEntity() {
 }
 
 /*****************************************************************************/
-void Scene::DestroyEntity(EntityHandle aEntity) {
-  mEntityFactory.DestroyEntity(aEntity.GetEntityRaw());
+void Scene::DestroyEntity(Entity aEntity) {
+  mEntityFactory.DestroyEntity(aEntity);
 
   // Remove the Entity from all Systems.
   for (auto &system : mSystems) {
-    system->mEntities.erase(aEntity);
+    system->mEntities.erase(EntityHandle(aEntity, *this));
   }
 
   // Remove the Entity's old component data.
   for (auto &map : mComponentMaps) {
-    if (map->ContainsComponent(aEntity.GetEntityRaw())) {
-      map->RemoveComponent(aEntity.GetEntityRaw());
+    if (map->ContainsComponent(aEntity)) {
+      map->RemoveComponent(aEntity);
     }
   }
 }
@@ -42,4 +42,18 @@ void Scene::OperateSystems(double dt) {
     system->Operate(*this, dt);
   }
 }
+
+/*****************************************************************************/
+void Scene::AddEntityToRelevantSystems(Entity aEntity) {
+  auto entitySignature = mEntitySignatures.at(aEntity.GetID());
+  for (size_t i = 0; i < mSystems.size(); ++i) {
+    auto systemSignature = mSystemSignatures[i];
+    if (systemSignature.Matches(entitySignature)) {
+      mSystems.at(i)->mEntities.insert(EntityHandle(aEntity, *this));
+    }
+  }
+}
+
+/*****************************************************************************/
+void Scene::RemoveEntityFromRelevantSystems(Entity aEntity) {}
 }  // namespace KumaECS

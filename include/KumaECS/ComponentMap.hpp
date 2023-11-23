@@ -30,8 +30,6 @@ class ComponentMap : public IComponentMap {
     mComponents.reserve(aMaxComponents);
   }
 
-  ComponentMap<T>() = default;
-
   bool ContainsComponent(Entity aEntity) const override {
     return mEntityToIndexMap.find(aEntity) != mEntityToIndexMap.end();
   }

@@ -1,6 +1,8 @@
 #ifndef ENTITY_HPP
 #define ENTITY_HPP
 
+#include <cstddef>
+
 namespace KumaECS {
 /**
  * An Entity is just an ID. These are used internally by the Scene and various
@@ -9,9 +11,9 @@ namespace KumaECS {
  */
 class Entity {
  public:
-  Entity(unsigned int aID) : mID(aID) {}
+  Entity(size_t aID) : mID(aID) {}
 
-  unsigned int GetID() const { return mID; }
+  size_t GetID() const { return mID; }
   bool IsValid() const { return mID != 0; }
 
   friend bool operator<(const Entity& lhs, Entity& rhs) {
@@ -19,7 +21,7 @@ class Entity {
   }
 
  private:
-  unsigned int mID;
+  size_t mID;
 };
 }  // namespace KumaECS
 
