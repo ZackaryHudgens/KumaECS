@@ -1,2 +1,2 @@
 # KumaECS
-KumaECS is a small, header-only ECS library.
+KumaECS is a small ECS library.
