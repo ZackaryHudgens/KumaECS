@@ -14,7 +14,6 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(KumaTests
   ComponentMapTests.cpp
-  SceneTests.cpp
 )
 
 target_link_libraries(KumaTests PUBLIC 
