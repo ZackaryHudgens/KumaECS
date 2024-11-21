@@ -2,39 +2,76 @@
 #define SCENE_HPP
 
 #include <memory>
+#include <queue>
 #include <vector>
 
 #include "ComponentMap.hpp"
-#include "Entity.hpp"
-#include "EntityFactory.hpp"
-#include "Signature.hpp"
 #include "System.hpp"
+#include "Entity.hpp"
+#include "Signature.hpp"
 
 namespace KumaECS
 {
-  class EntityHandle;
-
-  /**
-   * A Scene contains all the information necessary for an area or level of a
-   * game. This includes a list of Entities, a list of Systems, and a ComponentMap
-   * for each type of component.
-   *
-   * A game may contain multiple Scenes; for example, there may be separate Scenes
-   * for a main menu, a main gameplay loop, and a credits screen.
-   */
+  // A Scene contains all the information necessary for an area or level of a
+  // game. This includes a list of Entity IDs, a list of Systems, and a
+  // ComponentMap for each type of component.
+  //
+  // Depending on your needs, you may need to use one Scene or multiple Scenes.
+  // For example, a game may have a Scene for the main menu, a second Scene for
+  // gameplay, and a third Scene for the credits screen.
   class Scene
   {
   public:
-    /****************************************************************************
-     * Entity methods
-     ***************************************************************************/
+    Scene(size_t aMaxEntities)
+    {
+      for (size_t i = 0; i < aMaxEntities; ++i)
+      {
+        mAvailableEntities.push(i);
+        mEntitySignatures.emplace_back();
+      }
+    }
 
-    EntityHandle CreateEntity();
-    void DestroyEntity(Entity aEntity);
+    Scene(Scene &&) = default;
+    Scene(const Scene &) = default;
+    Scene &operator=(Scene &&) = default;
+    Scene &operator=(const Scene &) = default;
+    ~Scene() = default;
 
-    /****************************************************************************
-     * Component methods
-     ***************************************************************************/
+    void OperateSystems(double dt)
+    {
+      for (auto &system : mSystems)
+      {
+        system->Operate(*this, dt);
+      }
+    }
+
+    Entity CreateEntity()
+    {
+      assert(!mAvailableEntities.empty());
+
+      Entity entity = mAvailableEntities.front();
+      mAvailableEntities.pop();
+      return entity;
+    }
+
+    void DestroyEntity(Entity aEntity)
+    {
+      mAvailableEntities.push(aEntity);
+      mEntitySignatures[aEntity].reset();
+
+      for (auto &system : mSystems)
+      {
+        system->mEntities.erase(aEntity);
+      }
+
+      for (auto &map : mComponentMaps)
+      {
+        if (map->ContainsComponent(aEntity))
+        {
+          map->RemoveComponent(aEntity);
+        }
+      }
+    }
 
     template <typename T>
     void RegisterComponentType(size_t aMax)
@@ -42,43 +79,18 @@ namespace KumaECS
       auto name = typeid(T).name();
       assert(mComponentToIndexMap.find(name) == mComponentToIndexMap.end());
 
-      // Create a map for the new component type.
-      mComponentToIndexMap.emplace(name, mComponentMaps.size());
+      mComponentToIndexMap[name] = mComponentMaps.size();
       mComponentMaps.emplace_back(std::make_unique<ComponentMap<T>>(aMax));
-
-      // Update each Entity's Signature.
-      for (auto &&sig : mEntitySignatures)
-      {
-        sig.mIndices.emplace_back(0);
-      }
-
-      // Update each System's Signature.
-      for (auto &&sig : mSystemSignatures)
-      {
-        sig.mIndices.emplace_back(0);
-      }
     }
 
     template <typename T>
-    size_t GetComponentIndex()
+    void AddComponentToSignature(Signature &aSignature)
     {
       auto name = typeid(T).name();
       assert(mComponentToIndexMap.find(name) != mComponentToIndexMap.end());
-      return mComponentToIndexMap.at(name);
+
+      aSignature.set(mComponentToIndexMap[name]);
     }
-
-    size_t GetNumComponentTypes() const { return mComponentMaps.size(); }
-
-    /****************************************************************************
-     * System methods
-     ***************************************************************************/
-
-    void AddSystem(std::unique_ptr<System> aSystem);
-    void OperateSystems(double dt);
-
-    /****************************************************************************
-     * Entity-Component interoperational methods
-     ***************************************************************************/
 
     template <typename T>
     T &AddComponentToEntity(Entity aEntity)
@@ -86,13 +98,18 @@ namespace KumaECS
       auto name = typeid(T).name();
       assert(mComponentToIndexMap.find(name) != mComponentToIndexMap.end());
 
-      // Update the Entity's Signature and add it to any relevant Systems.
-      auto &entitySignature = mEntitySignatures.at(aEntity.GetID());
-      entitySignature.Set(mComponentToIndexMap.at(name));
-      AddEntityToRelevantSystems(aEntity);
+      mEntitySignatures[aEntity].set(mComponentToIndexMap[name]);
 
-      // Create the component and return a reference.
-      auto componentMap = mComponentMaps.at(mComponentToIndexMap.at(name)).get();
+      for (size_t i = 0; i < mSystems.size(); ++i)
+      {
+        auto systemSignature = mSystemSignatures[i];
+        if ((systemSignature & mEntitySignatures[aEntity]) == systemSignature)
+        {
+          mSystems[i]->mEntities.insert(aEntity);
+        }
+      }
+
+      auto componentMap = mComponentMaps[mComponentToIndexMap[name]].get();
       return static_cast<ComponentMap<T> *>(componentMap)->AddComponent(aEntity);
     }
 
@@ -102,14 +119,18 @@ namespace KumaECS
       auto name = typeid(T).name();
       assert(mComponentToIndexMap.find(name) != mComponentToIndexMap.end());
 
-      // Update the Entity's Signature and remove it from any relevant Systems.
-      auto &entitySignature = mEntitySignatures.at(aEntity.GetID());
-      entitySignature.Set(mComponentToIndexMap.at(name));
-      RemoveEntityFromRelevantSystems(aEntity);
-
-      // Remove the component from the component map.
-      auto componentMap = mComponentMaps.at(mComponentToIndexMap.at(name)).get();
+      auto componentMap = mComponentMaps[mComponentToIndexMap[name]].get();
       static_cast<ComponentMap<T> *>(componentMap)->RemoveComponent(aEntity);
+      mEntitySignatures[aEntity].reset(mComponentToIndexMap[name]);
+
+      for (size_t i = 0; i < mSystems.size(); ++i)
+      {
+        auto systemSignature = mSystemSignatures[i];
+        if ((systemSignature & mEntitySignatures[aEntity]) != systemSignature)
+        {
+          mSystems[i]->mEntities.erase(aEntity);
+        }
+      }
     }
 
     template <typename T>
@@ -118,19 +139,61 @@ namespace KumaECS
       auto name = typeid(T).name();
       assert(mComponentToIndexMap.find(name) != mComponentToIndexMap.end());
 
-      auto componentMap = mComponentMaps.at(mComponentToIndexMap.at(name)).get();
+      auto componentMap = mComponentMaps[mComponentToIndexMap[name]].get();
       return static_cast<ComponentMap<T> *>(componentMap)->GetComponent(aEntity);
     }
 
+    template <typename T>
+    bool DoesEntityHaveComponent(Entity aEntity)
+    {
+      auto name = typeid(T).name();
+      assert(mComponentToIndexMap.find(name) != mComponentToIndexMap.end());
+
+      auto componentMap = mComponentMaps[mComponentToIndexMap[name]].get();
+      return static_cast<ComponentMap<T> *>(componentMap)
+          ->ContainsComponent(aEntity);
+    }
+
+    EntitySet GetEntitiesWithSignature(const Signature &aSignature)
+    {
+      EntitySet entities;
+      for (size_t i = 0; i < mEntitySignatures.size(); ++i)
+      {
+        if ((mEntitySignatures[i] & aSignature) == aSignature)
+        {
+          entities.insert(i);
+        }
+      }
+
+      return entities;
+    }
+
+    template <typename T>
+    EntitySet GetEntitiesWithComponent()
+    {
+      Signature sig;
+      AddComponentToSignature<T>(sig);
+      return GetEntitiesWithSignature(sig);
+    }
+
+    template <typename T>
+    T *RegisterSystemType(const Signature &aSignature)
+    {
+      auto name = typeid(T).name();
+      assert(mSystemToIndexMap.find(name) == mSystemToIndexMap.end());
+
+      mSystemToIndexMap.emplace(name, mSystemSignatures.size());
+      mSystemSignatures.emplace_back(aSignature);
+      mSystems.emplace_back(std::make_unique<T>());
+      return static_cast<T *>(mSystems.back().get());
+    }
+
   private:
-    void AddEntityToRelevantSystems(Entity aEntity);
-    void RemoveEntityFromRelevantSystems(Entity aEntity);
-
-    EntityFactory mEntityFactory;
-
+    std::queue<Entity> mAvailableEntities;
     std::vector<Signature> mEntitySignatures;
-    std::vector<Signature> mSystemSignatures;
 
+    std::unordered_map<const char *, size_t> mSystemToIndexMap;
+    std::vector<Signature> mSystemSignatures;
     std::vector<std::unique_ptr<System>> mSystems;
 
     std::unordered_map<const char *, size_t> mComponentToIndexMap;

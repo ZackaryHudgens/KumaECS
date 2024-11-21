@@ -1,50 +1,17 @@
 #ifndef SIGNATURE_HPP
 #define SIGNATURE_HPP
 
-#include <cstddef>
-#include <vector>
+#include <bitset>
 
 namespace KumaECS
 {
-  class Scene;
+  // The maximum number of component types that a single Scene can keep track of.
+  const size_t MAX_COMPONENT_TYPES = 128;
 
-  /**
-   * A Signature is a means of keeping track of which component types
-   * an Entity has, as well as which component types a System in interested in.
-   */
-  class Signature
-  {
-    friend class Scene;
-
-  public:
-    Signature(size_t aSize) : mIndices(aSize, 0) {}
-
-    void Set(size_t aIndex) { mIndices.at(aIndex) = 1; }
-    void Unset(size_t aIndex) { mIndices.at(aIndex) = 0; }
-
-    bool Matches(const Signature &aSignature) const
-    {
-      if (aSignature.mIndices.size() != mIndices.size())
-      {
-        return false;
-      }
-
-      bool matchFound = true;
-      for (size_t i = 0; i < aSignature.mIndices.size(); ++i)
-      {
-        if (mIndices.at(i) == 1 && aSignature.mIndices.at(i) == 0)
-        {
-          matchFound = false;
-          break;
-        }
-      }
-
-      return matchFound;
-    }
-
-  private:
-    std::vector<bool> mIndices;
-  };
+  // A set of flags used by the Scene class to keep track of which components an
+  // Entity is associated with, as well as which Entities each System is
+  // interested in.
+  using Signature = std::bitset<MAX_COMPONENT_TYPES>;
 } // namespace KumaECS
 
-#endif
+#endif // !SIGNATURE_HPP

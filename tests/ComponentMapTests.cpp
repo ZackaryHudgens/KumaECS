@@ -4,13 +4,13 @@
 
 namespace KumaECS
 {
-  struct TestComponent
-  {
-    int x{0};
-  };
-
   TEST(ComponentMapTests, AddComponent)
   {
+    struct TestComponent
+    {
+      int x{0};
+    };
+
     ComponentMap<TestComponent> map(10);
     map.AddComponent(0).x = 0;
     map.AddComponent(1).x = 1;
@@ -32,6 +32,11 @@ namespace KumaECS
 
   TEST(ComponentMapTests, RemoveComponent)
   {
+    struct TestComponent
+    {
+      int x{0};
+    };
+
     ComponentMap<TestComponent> map(10);
     map.AddComponent(0).x = 0;
     map.AddComponent(1).x = 1;
