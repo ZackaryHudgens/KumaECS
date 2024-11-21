@@ -8,6 +8,7 @@ namespace KumaECS
 {
   class Scene;
   class SignatureHandle;
+  class EntitySet;
 
   /**
    * A System contains a set of EntityHandles that share a Signature. This set is
@@ -24,10 +25,10 @@ namespace KumaECS
     virtual void SetSignature(SignatureHandle &aSignature) = 0;
     virtual void Operate(Scene &aScene, double dt) = 0;
 
-    const EntitySet &GetEntities() const { return mEntities; }
+    const EntitySet &GetEntities() const { return *mEntities; }
 
   private:
-    EntitySet mEntities;
+    EntitySet *mEntities;
   };
 } // namespace KumaECS
 

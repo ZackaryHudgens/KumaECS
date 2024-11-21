@@ -7,6 +7,7 @@
 #include "ComponentMap.hpp"
 #include "Entity.hpp"
 #include "EntityFactory.hpp"
+#include "Signature.hpp"
 #include "System.hpp"
 
 namespace KumaECS
